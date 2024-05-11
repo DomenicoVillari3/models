@@ -5,7 +5,7 @@ import time
 from pydub import AudioSegment
 
 from CalcolaWER import calculate_WER,accuracyFromWER
-from Myplot import my_plot
+from Myplot import my_plot,plot_accuracy
 
 # Disattiva i warning 
 import warnings
@@ -52,8 +52,8 @@ def use_model(audio):
 def main():
     wer_list = []
     time_list=[]
+    acc_list = []
     
-
     dataSet=loadDataset()
 
     #PROVA DI TRASCRIZIONI SUL DATASET 
@@ -63,11 +63,13 @@ def main():
         ipotesi,t=use_model(audio_path)
         time_list.append(t)
         wer_list.append(calculate_WER(transcription,ipotesi))
+        acc_list.append(accuracyFromWER(wer_list[i]))
         print("\n ipotesi: {}\ntrascrizione: {} \n".format(ipotesi, transcription))
 
     #print(np.mean(wer_list))
     #print(np.mean(time_list))
-    my_plot(wer_list,time_list)
+    my_plot(wer_list,time_list,"whisper")
+    plot_accuracy("whisper",acc_list)
 
 
 if __name__=="__main__":

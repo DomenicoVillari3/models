@@ -1,3 +1,5 @@
+#USE PYTHON<3.11
+
 from transformers import AutoProcessor, SeamlessM4Tv2Model
 import torchaudio
 

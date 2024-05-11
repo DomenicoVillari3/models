@@ -11,5 +11,7 @@ def calculate_WER(transcription,transcriptionFromModel):
     return wer 
 
 def accuracyFromWER(wer):
-        return 1-wer
+    return 1-wer
+
+
 
