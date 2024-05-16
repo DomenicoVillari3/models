@@ -1,9 +1,10 @@
 import jiwer
+import re 
 def calculate_WER(transcription,transcriptionFromModel):
     
     #per calcolare il WER va rimossa la punteggiatura
-    transcription=transcription.lower().replace(".","").replace(",","")
-    transcriptionFromModel=transcriptionFromModel.lower().replace(".","").replace(",","")
+    transcription=re.sub(r'[^a-zA-Z0-9\s]', '', transcription)
+    transcriptionFromModel=re.sub(r'[^a-zA-Z0-9\s]', '', transcriptionFromModel)
 
     wer=jiwer.wer(transcription,transcriptionFromModel)
 
