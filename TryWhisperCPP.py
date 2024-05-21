@@ -7,7 +7,8 @@ import subprocess
 import soundfile
 
 from CalcolaWER import calculate_WER,accuracyFromWER
-from Myplot import my_plot,plot_accuracy
+from Myplot import my_plot
+from WriteMeanToCSV import WriteMeanToCSV,WriteValues
 
 '''./main --model /home/domenico/whisper.cpp/models/ggml-base.bin
 --file samples/jfk.wav --language en --output-txt 
@@ -72,26 +73,34 @@ def main():
     global target_directory
     global workspace_directory
 
-    wer_list = []
-    acc_list = []
-    time_list=[]
+    
     
 
-    dataSet=loadDataset()
-    os.chdir(target_directory)
+    dataSet=loadDataset() 
+    for run in range(15):
+        os.chdir(target_directory)
+        wer_list = []
+        time_list=[]
+        acc_list = []
+        for i in range(len(dataSet["test"])//2):
+            audio_path=get_path(dataSet["test"][i]['path'],dataSet["test"][i]['audio']['path'])
+            transcription=dataSet["test"][i]["transcription"]
+            ipotesi,t=use_model(audio_path)
+            
+            time_list.append(t)
+            wer=calculate_WER(transcription,ipotesi)
+            wer_list.append(wer)
+            acc_list.append(accuracyFromWER(wer))
+            #print("\n ipotesi: {}\ntrascrizione: {} \n".format(ipotesi, transcription))
+            
+            print("Iterazione {} sul run {}".format(i,run))
 
-    for i in range(len(dataSet["test"])):
-        audio_path=get_path(dataSet["test"][i]['path'],dataSet["test"][i]['audio']['path'])
-        transcription=dataSet["test"][i]["transcription"]
-        ipotesi,t=use_model(audio_path)
-        time_list.append(t)
-        wer_list.append(calculate_WER(transcription,ipotesi))
-        acc_list.append(accuracyFromWER(wer_list[i]))
-        print("\n ipotesi: {}\ntrascrizione: {} \n".format(ipotesi, transcription))
-
-    os.chdir(workspace_directory)
-    my_plot(wer_list,time_list,"whispercpp")
-    plot_accuracy("whispercpp",acc_list)
+        os.chdir(workspace_directory)
+        #TRASCRIZIONI SU FILE CSV DEI VALORI MEDI 
+        WriteMeanToCSV("whispercppMEAN.csv",run,avg_wer=np.mean(wer_list),avg_time=np.mean(time_list),avg_accuracy=np.mean(acc_list)) 
+        WriteValues("whispercpp.csv",run,wer_l=wer_list,time_l=time_list,accuracy_l=acc_list)
+    
+    my_plot("whispercpp.csv","whispercpp")
 
 
 if __name__=="__main__":

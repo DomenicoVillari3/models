@@ -45,12 +45,12 @@ def main():
     
     dataSet=loadDataset()
     
-    for run in range(2):
+    for run in range(15):
         wer_list = []
         time_list=[]
         acc_list = []
         #PROVA DI TRASCRIZIONI SUL DATASET 
-        for i in range(3):
+        for i in range(len(dataSet["test"])//2):
             transcription=dataSet["test"][i]["transcription"]
             #funzione per ottenere il path dell'audio
             audio_path=get_path(dataSet["test"][i]['path'],dataSet["test"][i]['audio']['path']) 
@@ -61,7 +61,8 @@ def main():
             time_list.append(t)
             wer_list.append(calculate_WER(transcription,ipotesi))
             acc_list.append(accuracyFromWER(wer_list[i]))
-            print("\n ipotesi: {}\ntrascrizione: {} \n".format(ipotesi, transcription))
+            #print("\n ipotesi: {}\ntrascrizione: {} \n".format(ipotesi, transcription))
+            print("Iterazione {} sul run {}".format(i,run))
 
         #TRASCRIZIONI SU FILE CSV DEI VALORI MEDI 
         WriteMeanToCSV("whisperMEAN.csv",run,avg_wer=np.mean(wer_list),avg_time=np.mean(time_list),avg_accuracy=np.mean(acc_list)) 
@@ -75,4 +76,6 @@ def main():
 
 
 if __name__=="__main__":
+    #ds=loadDataset()
+    #print(ds)
     main()
