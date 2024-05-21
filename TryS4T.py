@@ -20,7 +20,7 @@ def LoadModel():
 def use_seamless(model,processor,audio_inputs):
     # generate translation
     start=time.time()
-    output_tokens = model.generate(**audio_inputs, tgt_lang="ita", generate_speech=False)
+    output_tokens = model.generate(**audio_inputs, tgt_lang="ita",generate_speech=False)
     translated_text_from_audio = processor.decode(output_tokens[0].tolist()[0], skip_special_tokens=True)
     end=time.time()
     elapsed = end-start
@@ -30,17 +30,18 @@ def use_seamless(model,processor,audio_inputs):
 
 def main():
     model,processor=LoadModel()
+    dataset = load_dataset("google/fleurs", "it_it",trust_remote_code=True)
 
-    for run in range(20):
+    for run in range(15):
         wer_list = []
         time_list=[]
         acc_list = []
         #CARICAMENTO DEL DATASET
-        dataset = load_dataset("google/fleurs", "it_it", split="test", streaming=True,trust_remote_code=True)
+        
 
-        for audio_sample in dataset:
-            transcription=audio_sample["transcription"]
-            audio_sample = audio_sample["audio"]
+        for i in range(len(dataset["test"])//2):
+            transcription=dataset["test"][i]["transcription"]
+            audio_sample = dataset["test"][i]["audio"]
             audio = torch.tensor(audio_sample["array"])
             #print(f"Sampling rate: {audio_sample['sampling_rate']}")
             audio = torchaudio.functional.resample(audio, orig_freq=audio_sample['sampling_rate'], new_freq=model.config.sampling_rate)
@@ -58,7 +59,9 @@ def main():
             wer_list.append(wer)
             t_list.append(t)
             acc_list.append(acc)
-            print("\n ipotesi: {}\ntrascrizione: {} \n".format(ipotesi, transcription))
+            if(i<5 and run==0):
+                print("\n ipotesi: {}\ntrascrizione: {} \n".format(ipotesi, transcription))
+            print("Iterazione {} sul run {}".format(i,run))
 
         #TRASCRIZIONI SU FILE CSV DEI VALORI MEDI 
         WriteMeanToCSV("whisperMEAN.csv",run,avg_wer=np.mean(wer_list),avg_time=np.mean(time_list),avg_accuracy=np.mean(acc_list)) 
