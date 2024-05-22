@@ -36,7 +36,7 @@ def main():
         wer_list = []
         time_list=[]
         acc_list = []
-        #CARICAMENTO DEL DATASET
+        
         
 
         for i in range(len(dataset["test"])//2):
@@ -47,7 +47,7 @@ def main():
             audio = torchaudio.functional.resample(audio, orig_freq=audio_sample['sampling_rate'], new_freq=model.config.sampling_rate)
 
             # process input
-            audio_inputs = processor(audios=audio, return_tensors="pt")
+            audio_inputs = processor(audios=audio, return_tensors="pt",sampling_rate=16000)
 
 
             ipotesi,t=use_seamless(model,processor,audio_inputs)
@@ -57,15 +57,16 @@ def main():
             acc=accuracyFromWER(wer)
 
             wer_list.append(wer)
-            t_list.append(t)
+            time_list.append(t)
             acc_list.append(acc)
+
             if(i<5 and run==0):
                 print("\n ipotesi: {}\ntrascrizione: {} \n".format(ipotesi, transcription))
             print("Iterazione {} sul run {}".format(i,run))
 
         #TRASCRIZIONI SU FILE CSV DEI VALORI MEDI 
-        WriteMeanToCSV("whisperMEAN.csv",run,avg_wer=np.mean(wer_list),avg_time=np.mean(time_list),avg_accuracy=np.mean(acc_list)) 
-        WriteValues("whisper.csv",run,wer_l=wer_list,time_l=time_list,accuracy_l=acc_list)     
+        WriteMeanToCSV("SM4TMEAN.csv",run,avg_wer=np.mean(wer_list),avg_time=np.mean(time_list),avg_accuracy=np.mean(acc_list)) 
+        WriteValues("SM4T.csv",run,wer_l=wer_list,time_l=time_list,accuracy_l=acc_list)     
 
     my_plot("SM4T.csv","SM4T.csv")
 
