@@ -31,8 +31,8 @@ def get_path(path1, path2):
 
 
 #FUNZIONE PER UTILIZZARE WHISPER
-def use_model(audio):
-    model = whisper.load_model("base")
+def use_model(model,audio):
+   
     start=time.time()
     result = model.transcribe(audio)
     end=time.time()-start
@@ -44,23 +44,29 @@ def use_model(audio):
 def main():
     
     dataSet=loadDataset()
+    model = whisper.load_model("base")
+    wer_list = []
+    time_list=[]
+    acc_list = []
     
     for run in range(15):
-        wer_list = []
-        time_list=[]
-        acc_list = []
+        wer_list.clear()
+        time_list.clear()
+        acc_list.clear()
+        
         #PROVA DI TRASCRIZIONI SUL DATASET 
         for i in range(len(dataSet["test"])//2):
             transcription=dataSet["test"][i]["transcription"]
             #funzione per ottenere il path dell'audio
             audio_path=get_path(dataSet["test"][i]['path'],dataSet["test"][i]['audio']['path']) 
             #Funzione per fare la trascrizione tramite il modello
-            ipotesi,t=use_model(audio_path)
+            ipotesi,t=use_model(model,audio_path)
 
 
             time_list.append(t)
             wer_list.append(calculate_WER(transcription,ipotesi))
             acc_list.append(accuracyFromWER(wer_list[i]))
+            
             #print("\n ipotesi: {}\ntrascrizione: {} \n".format(ipotesi, transcription))
             print("Iterazione {} sul run {}".format(i,run))
 

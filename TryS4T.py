@@ -31,14 +31,15 @@ def use_seamless(model,processor,audio_inputs):
 def main():
     model,processor=LoadModel()
     dataset = load_dataset("google/fleurs", "it_it",trust_remote_code=True)
-
+    wer_list = []
+        
+    time_list=[]
+    acc_list = []
     for run in range(15):
-        wer_list = []
-        time_list=[]
-        acc_list = []
+        wer_list.clear()    
+        time_list.clear()
+        acc_list.clear()
         
-        
-
         for i in range(len(dataset["test"])//2):
             transcription=dataset["test"][i]["transcription"]
             audio_sample = dataset["test"][i]["audio"]
