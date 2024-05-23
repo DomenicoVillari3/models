@@ -1,4 +1,9 @@
-from transformers import AutoTokenizer, MarianMTModel
+# Load model directly
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+
+
+
+
 from datasets import load_dataset
 import sacrebleu
 import os 
@@ -24,23 +29,21 @@ def to_csv(filename,run,bleu,avg_time):
 
 def load_model(model_name):
     
-    model = MarianMTModel.from_pretrained(model_name)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForSeq2SeqLM.from_pretrained("google/madlad400-3b-mt")
     return model,tokenizer
 
-def translate(model,tokenizer,sample_text):
-    
-    batch = tokenizer([sample_text], return_tensors="pt")
-    generated_ids = model.generate(**batch)
-    translated_text_from_text=tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
+def translate(model,tokenizer,text):
+    input_ids = tokenizer(text, return_tensors="pt")
+    outputs = model.generate(input_ids=input_ids)
+
+    translated_text_from_text=tokenizer.decode(outputs[0], skip_special_tokens=True)
 
     return translated_text_from_text
 
 
 def main():
-    src = "it"  # source language
-    trg = "en"  # target language
-    model_name = f"Helsinki-NLP/opus-mt-{src}-{trg}"
+    model_name = "google/madlad400-3b-mt"
 
     model,processor=load_model(model_name)
 
@@ -52,7 +55,7 @@ def main():
     hypotheses = []
     t=[]
 
-    for run in range(1):
+    for run in range(1,15):
         references.clear()
         hypotheses.clear()
         t.clear()
