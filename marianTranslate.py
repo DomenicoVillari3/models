@@ -5,6 +5,7 @@ import os
 import time
 import csv
 import numpy as np
+import random
 
 
 def to_csv(filename,run,bleu,avg_time):
@@ -21,6 +22,10 @@ def to_csv(filename,run,bleu,avg_time):
             
             #scrivo riga
             writer.writerow({'esecuzione': run, 'bleu_score': bleu, 'avg_time': avg_time})
+
+# Funzione di ordinamento basata sulla lunghezza della frase in inglese
+def sort_by_sentence_length(item):
+    return len(item['sentence_ita_Latn'])
 
 def load_model(model_name):
     
@@ -45,23 +50,32 @@ def main():
     model,processor=load_model(model_name)
 
     dataset = load_dataset("facebook/flores","ita_Latn-eng_Latn",split="devtest",trust_remote_code=True)
+    dataset=sorted(dataset, key=sort_by_sentence_length)
+
+   
+
     ita="sentence_ita_Latn"
     eng="sentence_eng_Latn"
+
+    for i in range(len(dataset)):
+        print(len(dataset[i][ita]))
     #print(dataset)
     references = []
     hypotheses = []
     t=[]
 
-    for run in range(1):
+    for run in range(0):
         references.clear()
         hypotheses.clear()
         t.clear()
 
         #500 entry
         for i in range(len(dataset)//2):
+
+            random_index = random.randint(0, len(dataset) - 1)
             print("traduzione {} su run {}\n".format(i,run))
-            src_text=dataset[i][ita]
-            dst_text=dataset[i][eng]
+            src_text=dataset[random_index][ita]
+            dst_text=dataset[random_index][eng]
             init=time.time()
             translated_text = translate(model, processor, src_text)
             end=time.time()
