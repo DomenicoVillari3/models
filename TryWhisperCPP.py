@@ -1,3 +1,4 @@
+#python 3.11.9
 import os
 from datasets import load_dataset, Audio
 import numpy as np 
@@ -17,7 +18,7 @@ from WriteMeanToCSV import WriteMeanToCSV,WriteValues
 
 #Path to whisper dirercory
 target_directory = '/home/domenico/whisper.cpp'
-model_directory = '/home/domenico/whisper.cpp/models/ggml-base.bin'
+model_directory = '/home/domenico/whisper.cpp/models/ggml-large-v3.bin'
 workspace_directory = '/home/domenico/Scrivania/Models/models'
 language='it'
 output_file='/JobDir/f'
@@ -47,7 +48,7 @@ def use_model(audio):
 
     to_16bit_wav(audio)
 
-    comando='./main --model {} --file {} --language {} --output-txt --output-file .{}'.format(model_directory,audio,language,output_file)
+    comando='./main --model {} --file {}  --threads 8  --language {} --output-txt --output-file .{}'.format(model_directory,audio,language,output_file)
     #print(comando)
     
     try:
@@ -77,30 +78,34 @@ def main():
     
 
     dataSet=loadDataset() 
-    for run in range(15):
-        os.chdir(target_directory)
-        wer_list = []
-        time_list=[]
-        acc_list = []
-        for i in range(len(dataSet["test"])//2):
-            audio_path=get_path(dataSet["test"][i]['path'],dataSet["test"][i]['audio']['path'])
-            transcription=dataSet["test"][i]["transcription"]
-            ipotesi,t=use_model(audio_path)
-            
-            time_list.append(t)
-            wer=calculate_WER(transcription,ipotesi)
-            wer_list.append(wer)
-            acc_list.append(accuracyFromWER(wer))
-            #print("\n ipotesi: {}\ntrascrizione: {} \n".format(ipotesi, transcription))
-            
-            print("Iterazione {} sul run {}".format(i,run))
+   
+    os.chdir(target_directory)
+    wer_list = []
+    time_list=[]
+    acc_list = []
+    for i in range(len(dataSet["test"])):
+        #print("inizio")
+        audio_path=get_path(dataSet["test"][i]['path'],dataSet["test"][i]['audio']['path'])
+        #print("trascrizione")
+        transcription=dataSet["test"][i]["transcription"]
+        ipotesi,t=use_model(audio_path)
+        #print(ipotesi)
+        
+        time_list.append(t)
+        wer=calculate_WER(transcription,ipotesi)
+        wer_list.append(wer)
+        acc_list.append(accuracyFromWER(wer))
+        #print("\n ipotesi: {}\ntrascrizione: {} \n".format(ipotesi, transcription))
+        
+        print("Iterazione {}".format(i))
 
-        os.chdir(workspace_directory)
-        #TRASCRIZIONI SU FILE CSV DEI VALORI MEDI 
-        WriteMeanToCSV("whispercppMEAN.csv",run,avg_wer=np.mean(wer_list),avg_time=np.mean(time_list),avg_accuracy=np.mean(acc_list)) 
-        WriteValues("whispercpp.csv",run,wer_l=wer_list,time_l=time_list,accuracy_l=acc_list)
+    os.chdir(workspace_directory)
+    #TRASCRIZIONI SU FILE CSV DEI VALORI MEDI 
+    WriteMeanToCSV("means.csv",modello="whispercpp",avg_wer=np.mean(wer_list),avg_time=np.mean(time_list),avg_accuracy=np.mean(acc_list)) 
+    WriteValues("whisperCPP.csv",wer_l=wer_list,time_l=time_list,accuracy_l=acc_list)     
+
     
-    my_plot("whispercpp.csv","whispercpp")
+    #my_plot("whispercpp.csv","whispercpp")
 
 
 if __name__=="__main__":

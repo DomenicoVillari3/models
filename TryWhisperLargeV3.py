@@ -1,7 +1,8 @@
 from datasets import load_dataset, Audio
 import numpy as np 
 import time
-from transformers import pipeline
+import torch
+from transformers import pipeline,AutoModelForSpeechSeq2Seq,AutoProcessor
 import csv
 import os
 
@@ -15,6 +16,35 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 
 
+def load_model(model_id):
+
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+
+    #use_safetensors=True indica che il modello dovrebbe utilizzare SafeTensors, 
+    # che sono un tipo speciale di tensori PyTorch progettati per ridurre l’uso della memoria.
+    model = AutoModelForSpeechSeq2Seq.from_pretrained(
+        model_id, torch_dtype=torch_dtype, low_cpu_mem_usage=True, use_safetensors=True
+    )
+    model.to(device)
+
+    processor = AutoProcessor.from_pretrained(model_id)
+
+    #modello con chunk di 25 secondi l'uno su batch con 8 elementi (per l'esecuzione in parallelo)
+    #se torch_dtype=torch.float16 si ha  dati a virgola mobile a 16 bit, anche detta half precision (maggiore velocità e - memoria)
+    pipe = pipeline(
+        "automatic-speech-recognition",
+        model=model,
+        tokenizer=processor.tokenizer,
+        feature_extractor=processor.feature_extractor,
+        max_new_tokens=128,
+        chunk_length_s=30,
+        batch_size=8,
+        torch_dtype=torch_dtype,
+        device=device,
+    )
+    
+    return pipe
 
 def loadDataset():
     ds = load_dataset("google/fleurs", "it_it",trust_remote_code=True) #carico il dataset 
@@ -40,25 +70,27 @@ def use_model(model,audio):
 
 
 def main():
-    
-    dataSet=loadDataset()
-    pipe = pipeline("automatic-speech-recognition", model="openai/whisper-large-v3")
+    modelName="whisper-large-v3"
+    modelId="openai/whisper-large-v3"
 
+    dataSet=loadDataset()
+    pipe=load_model(modelId)
+    
     wer_list = []
     time_list=[]
     acc_list = []
     
     
     #PROVA DI TRASCRIZIONI SUL DATASET 
-    for i in range(len(dataSet["train"])):
+    for i in range(len(dataSet["test"])):
 
         #Recupero la trascrizione 
-        transcription=dataSet["train"][i]["transcription"]
+        transcription=dataSet["test"][i]["transcription"]
         print("trascrizione originale {}".format(transcription))
 
         #funzione per ottenere il path dell'audio
         audio_path=get_path(dataSet["test"][i]['path'],dataSet["test"][i]['audio']['path']) 
-        print("path dell'audio {}".format(audio_path))
+        #print("path dell'audio {}".format(audio_path))
 
 
         #Funzione per fare la trascrizione tramite il modello
@@ -74,8 +106,8 @@ def main():
         print("Iterazione {} sul run".format(i))
 
     #TRASCRIZIONI SU FILE CSV DEI VALORI MEDI 
-    WriteMeanToCSV("Means.csv",avg_wer=np.mean(wer_list),avg_time=np.mean(time_list),avg_accuracy=np.mean(acc_list)) 
-    WriteValues("whisperlargev3.csv",wer_l=wer_list,time_l=time_list,accuracy_l=acc_list)     
+    WriteMeanToCSV("means.csv",modelName,avg_wer=np.mean(wer_list),avg_time=np.mean(time_list),avg_accuracy=np.mean(acc_list)) 
+    WriteValues(modelName+".csv",wer_l=wer_list,time_l=time_list,accuracy_l=acc_list)     
 
     #print(np.mean(wer_list))
     #print(np.mean(time_list))

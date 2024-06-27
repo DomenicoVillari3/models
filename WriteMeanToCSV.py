@@ -13,7 +13,7 @@ def WriteMeanToCSV(filename,modello,avg_wer,avg_time,avg_accuracy):
                 writer.writeheader()
             
             #scrivo riga
-            writer.writerow({'esecuzione': modello, 'avg_wer': avg_wer, 'avg_time': avg_time, 'avg_accuracy': avg_accuracy})
+            writer.writerow({'modello': modello, 'avg_wer': avg_wer, 'avg_time': avg_time, 'avg_accuracy': avg_accuracy})
 
 def WriteValues(filename,wer_l,time_l,accuracy_l):
     file_exists = os.path.isfile(filename)

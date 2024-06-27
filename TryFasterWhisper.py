@@ -1,0 +1,82 @@
+#python3.10.12
+import numpy as np
+from datasets import load_dataset, Audio
+import time
+from CalcolaWER import calculate_WER,accuracyFromWER
+from Myplot import my_plot
+from WriteMeanToCSV import WriteMeanToCSV,WriteValues
+
+from faster_whisper import WhisperModel
+
+
+
+wer_list=[]
+t_list=[]
+acc_list=[]
+
+
+def loadDataset():
+    ds = load_dataset("google/fleurs", "it_it",trust_remote_code=True) #carico il dataset 
+    ds = ds.cast_column("audio", Audio(sampling_rate=16000)) 
+    return ds
+
+def get_path(path1, path2):
+    split = path1.split('/')
+    ret = path1.replace(split[-1],path2)
+    return ret
+
+
+
+def main():
+
+    model_size = "large-v3"
+    model = WhisperModel(model_size, device="cpu", compute_type="int8")
+
+    dataset=loadDataset()
+    
+    wer_list = []    
+    time_list=[]
+    acc_list = []
+
+
+    
+    wer_list.clear()    
+    time_list.clear()
+    acc_list.clear()
+    
+    for i in range(len(dataset["test"])):
+        transcription=dataset["test"][i]["transcription"]
+        audio_path=get_path(dataset["test"][i]['path'],dataset["test"][i]['audio']['path']) 
+        
+        t_start=time.time()
+        segments, _= model.transcribe(audio_path, beam_size=5,language="it")
+        t_end=time.time()
+
+        t=t_end-t_start
+
+        segments = list(segments)        
+        ipotesi=segments[0].text
+        
+        wer=calculate_WER(transcription,ipotesi)
+        acc=accuracyFromWER(wer)
+
+        wer_list.append(wer)
+        time_list.append(t)
+        acc_list.append(acc)
+
+        print("Iterazione {}".format(i))
+
+
+
+    #TRASCRIZIONI SU FILE CSV DEI VALORI MEDI 
+    WriteMeanToCSV("means.csv","FasterLargeV3",avg_wer=np.mean(wer_list),avg_time=np.mean(time_list),avg_accuracy=np.mean(acc_list)) 
+    WriteValues("faster_whisper_large_v3.csv",wer_l=wer_list,time_l=time_list,accuracy_l=acc_list)     
+
+
+    #my_plot("SM4T.csv","SM4T.csv")
+
+    
+
+
+if __name__ == "__main__":
+    main()
