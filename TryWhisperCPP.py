@@ -48,7 +48,7 @@ def use_model(audio):
 
     to_16bit_wav(audio)
 
-    comando='./main --model {} --file {}  --threads 8  --language {} --output-txt --output-file .{}'.format(model_directory,audio,language,output_file)
+    comando='./main --model {} --file {} --language {} --output-txt --output-file .{}'.format(model_directory,audio,language,output_file)
     #print(comando)
     
     try:
@@ -83,7 +83,7 @@ def main():
     wer_list = []
     time_list=[]
     acc_list = []
-    for i in range(len(dataSet["test"])):
+    for i in range(1):
         #print("inizio")
         audio_path=get_path(dataSet["test"][i]['path'],dataSet["test"][i]['audio']['path'])
         #print("trascrizione")

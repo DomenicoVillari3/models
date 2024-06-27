@@ -86,7 +86,7 @@ def main():
 
         #Recupero la trascrizione 
         transcription=dataSet["test"][i]["transcription"]
-        print("trascrizione originale {}".format(transcription))
+        #print("trascrizione originale {}".format(transcription))
 
         #funzione per ottenere il path dell'audio
         audio_path=get_path(dataSet["test"][i]['path'],dataSet["test"][i]['audio']['path']) 
@@ -95,7 +95,7 @@ def main():
 
         #Funzione per fare la trascrizione tramite il modello
         ipotesi,t=use_model(pipe,audio_path)
-        print("Inferenza del modello {}".format(ipotesi))
+        #print("Inferenza del modello {}".format(ipotesi))
 
         #appendo su liste
         time_list.append(t)
@@ -103,7 +103,7 @@ def main():
         acc_list.append(accuracyFromWER(wer_list[i]))
         
         #print("\n ipotesi: {}\ntrascrizione: {} \n".format(ipotesi, transcription))
-        print("Iterazione {} sul run".format(i))
+        print("Iterazione {}".format(i))
 
     #TRASCRIZIONI SU FILE CSV DEI VALORI MEDI 
     WriteMeanToCSV("means.csv",modelName,avg_wer=np.mean(wer_list),avg_time=np.mean(time_list),avg_accuracy=np.mean(acc_list)) 
