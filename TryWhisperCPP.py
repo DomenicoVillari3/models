@@ -24,12 +24,13 @@ language='it'
 output_file='/JobDir/f'
 
 
-
+#Carico dataset
 def loadDataset():
     ds = load_dataset("google/fleurs", "it_it",trust_remote_code=True) #carico il dataset 
     ds = ds.cast_column("audio", Audio(sampling_rate=1600)) 
     return ds
 
+#Recupero del path dell'audio
 def get_path(path1, path2):
     split = path1.split('/')
     ret = path1.replace(split[-1],path2)
@@ -40,6 +41,7 @@ def to_16bit_wav(filepath):
     data, samplerate = soundfile.read(filepath)
     soundfile.write(filepath, data, samplerate, subtype='PCM_16')
 
+#TRASCRIZIONE
 def use_model(audio):
     global model_directory
     global language
@@ -51,6 +53,7 @@ def use_model(audio):
     comando='./main --model {} --file {} --language {} --output-txt --output-file .{}'.format(model_directory,audio,language,output_file)
     #print(comando)
     
+    #ESEGUO IL COMANDO IN UNA SHELL DEDICATA
     try:
         start=time.time()
         output = subprocess.check_output(
@@ -62,6 +65,7 @@ def use_model(audio):
         print("Error:", e.output)
         return None, None
     
+    #RECUPERO IL CONTENUTO DELLA TRASCRIZIONE DA UN FILE
     file=target_directory+output_file+".txt"
     with open(file,"r") as f:
         transcription=f.read()
@@ -74,16 +78,13 @@ def main():
     global target_directory
     global workspace_directory
 
-    
-    
-
     dataSet=loadDataset() 
-   
+
     os.chdir(target_directory)
     wer_list = []
     time_list=[]
     acc_list = []
-    for i in range(1):
+    for i in range(len(dataSet["test"])):
         #print("inizio")
         audio_path=get_path(dataSet["test"][i]['path'],dataSet["test"][i]['audio']['path'])
         #print("trascrizione")

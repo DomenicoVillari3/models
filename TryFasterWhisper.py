@@ -3,7 +3,6 @@ import numpy as np
 from datasets import load_dataset, Audio
 import time
 from CalcolaWER import calculate_WER,accuracyFromWER
-from Myplot import my_plot
 from WriteMeanToCSV import WriteMeanToCSV,WriteValues
 
 from faster_whisper import WhisperModel
@@ -28,7 +27,7 @@ def get_path(path1, path2):
 
 
 def main():
-
+    
     model_size = "large-v3"
     model = WhisperModel(model_size, device="cpu", compute_type="int8")
 
@@ -38,25 +37,22 @@ def main():
     time_list=[]
     acc_list = []
 
-
-    
-    wer_list.clear()    
-    time_list.clear()
-    acc_list.clear()
-    
+    #INFERENZA
     for i in range(len(dataset["test"])):
+
         transcription=dataset["test"][i]["transcription"]
         audio_path=get_path(dataset["test"][i]['path'],dataset["test"][i]['audio']['path']) 
         
         t_start=time.time()
         segments, _= model.transcribe(audio_path, beam_size=5,language="it")
         t_end=time.time()
-
         t=t_end-t_start
-
+        
+        #recupero trascrizione
         segments = list(segments)        
         ipotesi=segments[0].text
         
+        #calcolo WER e accuracy
         wer=calculate_WER(transcription,ipotesi)
         acc=accuracyFromWER(wer)
 
@@ -72,8 +68,6 @@ def main():
     WriteMeanToCSV("means.csv","FasterLargeV3",avg_wer=np.mean(wer_list),avg_time=np.mean(time_list),avg_accuracy=np.mean(acc_list)) 
     WriteValues("faster_whisper_large_v3.csv",wer_l=wer_list,time_l=time_list,accuracy_l=acc_list)     
 
-
-    #my_plot("SM4T.csv","SM4T.csv")
 
     
 
