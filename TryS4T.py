@@ -37,7 +37,7 @@ def main():
 
 
     
-    for i in range(len(dataset["test"])//2,len(dataset["test"])):
+    for i in range(len(dataset["test"])):
         transcription=dataset["test"][i]["transcription"]
         audio_sample = dataset["test"][i]["audio"]
         audio = torch.tensor(audio_sample["array"])

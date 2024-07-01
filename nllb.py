@@ -1,11 +1,11 @@
-from transformers import AutoTokenizer, MarianMTModel
+# Load model directly
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from datasets import load_dataset
 import sacrebleu
 import os 
 import time
 import csv
 import numpy as np
-import random
 
 
 def to_csv(filename,model,bleu,avg_time):
@@ -24,15 +24,15 @@ def to_csv(filename,model,bleu,avg_time):
             writer.writerow({'model': model, 'bleu_score': bleu, 'avg_time': avg_time})
 
 
-def load_model(model_name):
+def load_model(model_name,src):
     
-    model = MarianMTModel.from_pretrained(model_name)
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, src_lang=src)
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
     return model,tokenizer
 
 def translate(model,tokenizer,sample_text):
-    
-    batch = tokenizer([sample_text], return_tensors="pt")
+    batch = tokenizer(sample_text, return_tensors="pt")
     generated_ids = model.generate(**batch)
     translated_text_from_text=tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
 
@@ -40,15 +40,15 @@ def translate(model,tokenizer,sample_text):
 
 
 def main():
-    src = "it"  # source language
-    trg = "en"  # target language
-    model_name = f"Helsinki-NLP/opus-mt-{src}-{trg}"
+    src = "ita_Latn"  # source language
+    trg = "eng_Latn"  # target language
+    model_name = "facebook/nllb-200-distilled-600M"
 
-    model,processor=load_model(model_name)
+    model,tokenizer=load_model(model_name,src)
+    tokenizer.src_lang=src
+    tokenizer.tgt_lang=trg
 
     dataset = load_dataset("facebook/flores","ita_Latn-eng_Latn",split="devtest",trust_remote_code=True)
-
-
 
     ita="sentence_ita_Latn"
     eng="sentence_eng_Latn"
@@ -63,7 +63,7 @@ def main():
         src_text=dataset[i][ita]
         dst_text=dataset[i][eng]
         init=time.time()
-        translated_text = translate(model, processor, src_text)
+        translated_text = translate(model, tokenizer, src_text)
         end=time.time()
 
         t.append(end-init)
@@ -75,7 +75,7 @@ def main():
     references = [[ref] for ref in references]
     bleu = sacrebleu.corpus_bleu(hypotheses, references)
     print("BLEU score:{} \n\n".format(bleu.score))
-    to_csv(filename="translate_means.csv",model="Helsinki-NLP/opus-mt-it-en",bleu=bleu.score,avg_time=np.mean(t))
+    to_csv(filename="translate_means.csv",model=model_name,bleu=bleu.score,avg_time=np.mean(t))
 
 
 
