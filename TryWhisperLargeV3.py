@@ -30,16 +30,12 @@ def load_model(model_id):
 
     processor = AutoProcessor.from_pretrained(model_id)
 
-    #modello con chunk di 25 secondi l'uno su batch con 8 elementi (per l'esecuzione in parallelo)
     #se torch_dtype=torch.float16 si ha  dati a virgola mobile a 16 bit, anche detta half precision (maggiore velocità e - memoria)
     pipe = pipeline(
         "automatic-speech-recognition",
         model=model,
         tokenizer=processor.tokenizer,
         feature_extractor=processor.feature_extractor,
-        max_new_tokens=128,
-        chunk_length_s=30,
-        batch_size=8,
         torch_dtype=torch_dtype,
         device=device,
     )

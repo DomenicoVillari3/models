@@ -15,8 +15,6 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
-
-
 def loadDataset():
     ds = load_dataset("google/fleurs", "it_it",trust_remote_code=True) #carico il dataset 
     ds = ds.cast_column("audio", Audio(sampling_rate=16000)) 

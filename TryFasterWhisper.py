@@ -29,6 +29,7 @@ def get_path(path1, path2):
 def main():
     
     model_size = "large-v3"
+    #compute_type effettua quantizazione
     model = WhisperModel(model_size, device="cpu", compute_type="int8")
 
     dataset=loadDataset()
@@ -44,7 +45,7 @@ def main():
         audio_path=get_path(dataset["test"][i]['path'],dataset["test"][i]['audio']['path']) 
         
         t_start=time.time()
-        segments, _= model.transcribe(audio_path, beam_size=5,language="it")
+        segments, _= model.transcribe(audio_path,language="it")
         t_end=time.time()
         t=t_end-t_start
         
