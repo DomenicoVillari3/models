@@ -18,7 +18,7 @@ from WriteMeanToCSV import WriteMeanToCSV,WriteValues
 
 #Path to whisper dirercory
 target_directory = '/home/domenico/whisper.cpp'
-model_directory = '/home/domenico/whisper.cpp/models/ggml-large-v3.bin'
+model_directory = '/home/domenico/whisper.cpp/models/ggml-base.bin'
 workspace_directory = '/home/domenico/Scrivania/Models/models'
 language='it'
 output_file='/JobDir/f'
@@ -96,14 +96,14 @@ def main():
         wer=calculate_WER(transcription,ipotesi)
         wer_list.append(wer)
         acc_list.append(accuracyFromWER(wer))
-        print("\n ipotesi: {}\ntrascrizione: {} \n".format(ipotesi, transcription))
+        #print("\n ipotesi: {}\ntrascrizione: {} \n, tempo {} \n ".format(ipotesi, transcription,t))
         
         print("Iterazione {}".format(i))
 
     os.chdir(workspace_directory)
     #TRASCRIZIONI SU FILE CSV DEI VALORI MEDI 
-    WriteMeanToCSV("means.csv",modello="whispercpp_4threads",avg_wer=np.mean(wer_list),avg_time=np.mean(time_list),avg_accuracy=np.mean(acc_list)) 
-    WriteValues("whisperCPP_4threads.csv",wer_l=wer_list,time_l=time_list,accuracy_l=acc_list)     
+    WriteMeanToCSV("means.csv",modello="whispercpp",avg_wer=np.mean(wer_list),avg_time=np.mean(time_list),avg_accuracy=np.mean(acc_list)) 
+    WriteValues("whisperCPP_base.csv",wer_l=wer_list,time_l=time_list,accuracy_l=acc_list)     
 
     
     #my_plot("whispercpp.csv","whispercpp")
