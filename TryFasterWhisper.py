@@ -30,7 +30,7 @@ def main():
     
     model_size = "large-v3"
     #compute_type effettua quantizazione
-    model = WhisperModel(model_size, device="cpu", compute_type="int8")
+    model = WhisperModel(model_size, device="cpu")
 
     dataset=loadDataset()
     
@@ -66,8 +66,8 @@ def main():
 
 
     #TRASCRIZIONI SU FILE CSV DEI VALORI MEDI 
-    WriteMeanToCSV("means.csv","FasterLargeV3",avg_wer=np.mean(wer_list),avg_time=np.mean(time_list),avg_accuracy=np.mean(acc_list)) 
-    WriteValues("faster_whisper_large_v3.csv",wer_l=wer_list,time_l=time_list,accuracy_l=acc_list)     
+    WriteMeanToCSV("means.csv","Faste-base",avg_wer=np.mean(wer_list),avg_time=np.mean(time_list),avg_accuracy=np.mean(acc_list)) 
+    WriteValues("faster_whisper_base.csv",wer_l=wer_list,time_l=time_list,accuracy_l=acc_list)     
 
 
     

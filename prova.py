@@ -56,7 +56,7 @@ def main():
     global target_directory
     global workspace_directory
 
-    model = whisper_cpp_python.Whisper(model_path="/home/domenico/whisper.cpp/models/ggml-large-v3.bin", n_threads=4)
+    model = whisper_cpp_python.Whisper(model_path="/home/domenico/whisper.cpp/models/ggml-base.bin", n_threads=4)
 
     dataSet=loadDataset() 
 
@@ -76,7 +76,7 @@ def main():
         wer=calculate_WER(transcription,ipotesi)
         wer_list.append(wer)
         acc_list.append(accuracyFromWER(wer))
-        print("\n ipotesi: {}\ntrascrizione: {} \n".format(ipotesi, transcription))
+        print("\n ipotesi: {}\ntrascrizione: {}, \n tempo {} \n".format(ipotesi, transcription,t))
         
         print("Iterazione {}".format(i))
 
