@@ -18,15 +18,13 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 def load_model(model_id):
 
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+    #device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    #torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
     #use_safetensors=True indica che il modello dovrebbe utilizzare SafeTensors, 
     # che sono un tipo speciale di tensori PyTorch progettati per ridurre l’uso della memoria.
-    model = AutoModelForSpeechSeq2Seq.from_pretrained(
-        model_id, torch_dtype=torch_dtype, low_cpu_mem_usage=True, use_safetensors=True
-    )
-    model.to(device)
+    model = AutoModelForSpeechSeq2Seq.from_pretrained(model_id)
+    #model.to(device)
 
     processor = AutoProcessor.from_pretrained(model_id)
 
@@ -37,11 +35,8 @@ def load_model(model_id):
         model=model,
         tokenizer=processor.tokenizer,
         feature_extractor=processor.feature_extractor,
-        #max_new_tokens=128,
-        #chunk_length_s=30,
-        #batch_size=8,
-        torch_dtype=torch_dtype,
-        device=device,
+        #torch_dtype=torch_dtype,
+        #device=device,
     )
     
     return pipe
@@ -70,8 +65,8 @@ def use_model(model,audio):
 
 
 def main():
-    modelName="whisper-large-v3"
-    modelId="openai/whisper-large-v3"
+    modelName="whisper-base-plain"
+    modelId="openai/whisper-base"
     
     dataSet=loadDataset()
     pipe=load_model(modelId)
@@ -102,7 +97,7 @@ def main():
         wer_list.append(calculate_WER(transcription,ipotesi))
         acc_list.append(accuracyFromWER(wer_list[i]))
         
-        #print("\n ipotesi: {}\ntrascrizione: {} \n".format(ipotesi, transcription))
+        print("\n ipotesi: {}\ntrascrizione: {} \n, tempo {} \n ".format(ipotesi, transcription,t))
         print("Iterazione {}".format(i))
 
     #TRASCRIZIONI SU FILE CSV DEI VALORI MEDI 

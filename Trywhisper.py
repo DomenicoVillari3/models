@@ -47,37 +47,30 @@ def main():
     time_list=[]
     acc_list = []
     
-    for run in range(15):
-        wer_list.clear()
-        time_list.clear()
-        acc_list.clear()
+    
+    #PROVA DI TRASCRIZIONI SUL DATASET 
+    for i in range(len(dataSet["test"])):
+        transcription=dataSet["test"][i]["transcription"]
+        #funzione per ottenere il path dell'audio
+        audio_path=get_path(dataSet["test"][i]['path'],dataSet["test"][i]['audio']['path']) 
+        #Funzione per fare la trascrizione tramite il modello
+        ipotesi,t=use_model(model,audio_path)
+
+
+        time_list.append(t)
+        wer_list.append(calculate_WER(transcription,ipotesi))
+        acc_list.append(accuracyFromWER(wer_list[i]))
         
-        #PROVA DI TRASCRIZIONI SUL DATASET 
-        for i in range(len(dataSet["test"])//2):
-            transcription=dataSet["test"][i]["transcription"]
-            #funzione per ottenere il path dell'audio
-            audio_path=get_path(dataSet["test"][i]['path'],dataSet["test"][i]['audio']['path']) 
-            #Funzione per fare la trascrizione tramite il modello
-            ipotesi,t=use_model(model,audio_path)
+        print("\n ipotesi: {}\ntrascrizione: {} \n, tempo {} \n ".format(ipotesi, transcription,t))
+        print("Iterazione {}".format(i))
 
-
-            time_list.append(t)
-            wer_list.append(calculate_WER(transcription,ipotesi))
-            acc_list.append(accuracyFromWER(wer_list[i]))
-            
-            #print("\n ipotesi: {}\ntrascrizione: {} \n".format(ipotesi, transcription))
-            print("Iterazione {} sul run {}".format(i,run))
-
-        #TRASCRIZIONI SU FILE CSV DEI VALORI MEDI 
-        WriteMeanToCSV("whisperMEAN.csv",run,avg_wer=np.mean(wer_list),avg_time=np.mean(time_list),avg_accuracy=np.mean(acc_list)) 
-        WriteValues("whisper.csv",run,wer_l=wer_list,time_l=time_list,accuracy_l=acc_list)     
+    #TRASCRIZIONI SU FILE CSV DEI VALORI MEDI 
+    WriteMeanToCSV("means.csv","whisper_base_api",avg_wer=np.mean(wer_list),avg_time=np.mean(time_list),avg_accuracy=np.mean(acc_list)) 
+    WriteValues("whisper_base_api.csv",wer_l=wer_list,time_l=time_list,accuracy_l=acc_list)    
 
     #print(np.mean(wer_list))
     #print(np.mean(time_list))
-    my_plot("whisper.csv","whisper")
     
-
-
 
 if __name__=="__main__":
     #ds=loadDataset()
