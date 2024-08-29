@@ -50,7 +50,7 @@ def use_model(audio):
 
     to_16bit_wav(audio)
 
-    comando='./main --model {} --file {} --language {} --output-txt --output-file .{}'.format(model_directory,audio,language,output_file)
+    comando='./main --model {} --file {} --language {} --output-txt --output-file .{} -ng True'.format(model_directory,audio,language,output_file)
     #print(comando)
     
     #ESEGUO IL COMANDO IN UNA SHELL DEDICATA

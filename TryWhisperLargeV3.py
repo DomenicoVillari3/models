@@ -17,28 +17,14 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 
 def load_model(model_id):
-
-    #device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    #torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
-
-    #use_safetensors=True indica che il modello dovrebbe utilizzare SafeTensors, 
-    # che sono un tipo speciale di tensori PyTorch progettati per ridurre l’uso della memoria.
     model = AutoModelForSpeechSeq2Seq.from_pretrained(model_id)
-    #model.to(device)
-
     processor = AutoProcessor.from_pretrained(model_id)
-
-    #modello con chunk di 25 secondi l'uno su batch con 8 elementi (per l'esecuzione in parallelo)
-    #se torch_dtype=torch.float16 si ha  dati a virgola mobile a 16 bit, anche detta half precision (maggiore velocità e - memoria)
     pipe = pipeline(
         "automatic-speech-recognition",
         model=model,
         tokenizer=processor.tokenizer,
-        feature_extractor=processor.feature_extractor,
-        #torch_dtype=torch_dtype,
-        #device=device,
+        feature_extractor=processor.feature_extractor
     )
-    
     return pipe
 
 def loadDataset():
@@ -59,7 +45,6 @@ def use_model(model,audio):
     start=time.time()
     result = model(audio,generate_kwargs={"language": "italian"})
     end=time.time()-start
-    #print(result["text"])
     return result["text"],end
 
 
