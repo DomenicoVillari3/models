@@ -5,7 +5,6 @@ from transformers import SeamlessM4Tv2Model, AutoProcessor
 from datasets import load_dataset
 import time
 from CalcolaWER import calculate_WER,accuracyFromWER
-from Myplot import my_plot
 from WriteMeanToCSV import WriteMeanToCSV,WriteValues
 
 wer_list=[]

@@ -7,7 +7,6 @@ import csv
 import os
 
 from CalcolaWER import calculate_WER,accuracyFromWER
-from Myplot import my_plot
 from WriteMeanToCSV import WriteMeanToCSV,WriteValues
 
 # Disattiva i warning 
@@ -91,8 +90,7 @@ def main():
 
     #print(np.mean(wer_list))
     #print(np.mean(time_list))
-    #my_plot("whisper.csv","whisper")
-    
+   
 
 
 

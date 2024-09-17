@@ -8,7 +8,6 @@ import subprocess
 import soundfile
 
 from CalcolaWER import calculate_WER,accuracyFromWER
-from Myplot import my_plot
 from WriteMeanToCSV import WriteMeanToCSV,WriteValues
 
 '''./main --model /home/domenico/whisper.cpp/models/ggml-base.bin
@@ -17,11 +16,11 @@ from WriteMeanToCSV import WriteMeanToCSV,WriteValues
 '''
 
 #Path to whisper dirercory
-target_directory = '/home/domenico/whisper.cpp'
-model_directory = '/home/domenico/whisper.cpp/models/ggml-base.bin'
-workspace_directory = '/home/domenico/Scrivania/Models/models'
+target_directory = '/home/domenico/whisper.cpp' #path della directory con il modello   
+model_directory = '/home/domenico/whisper.cpp/models/ggml-base.bin' #path del modello 
+workspace_directory = '/home/domenico/Scrivania/Models/models' #directory corrente su cui verranno salati i csv
 language='it'
-output_file='/JobDir/f'
+output_file='/JobDir/f.txt' #file per salvare la trascrizione 
 
 
 #Carico dataset
@@ -66,7 +65,7 @@ def use_model(audio):
         return None, None
     
     #RECUPERO IL CONTENUTO DELLA TRASCRIZIONE DA UN FILE
-    file=target_directory+output_file+".txt"
+    file=target_directory+output_file
     with open(file,"r") as f:
         transcription=f.read()
         f.close()
