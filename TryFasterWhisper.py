@@ -29,7 +29,6 @@ def get_path(path1, path2):
 def main():
     
     model_size = "base"
-    #compute_type effettua quantizazione
     model = WhisperModel(model_size, device="cpu")
 
     dataset=loadDataset()

@@ -48,7 +48,7 @@ def translation_comparison(filename):
 
 
 
-  
 
-s2t_comparison('/home/domenico/Scrivania/Models/models/means.csv')
-translation_comparison('/home/domenico/Scrivania/Models/models/translate_means.csv')
+
+s2t_comparison('/home/domenico/Scrivania/Models/models/tesi/csv/meansM1.csv')
+#translation_comparison('/home/domenico/Scrivania/Models/models/translate_means.csv')
